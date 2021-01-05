@@ -11,12 +11,17 @@ import CoreData
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
+    var selectedCategory : Category?{
+        didSet{
+            loadItems()
+        }
+    }
     
     @IBOutlet weak var searchBar: UISearchBar!
-    //    1ST APPROACH
-//    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    //    1ST APPROACH: Add the items to custom plist
+    //    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
-//    2ND APPROACH (COREDATA) create context from AppDeleghate for CoreData
+    // create context from AppDelegate for CoreData
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
@@ -24,12 +29,9 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         searchBar.delegate = self
         print(dataFilePath)
-        
-        loadItems()
-        
     }
     
-//    UITableViewDataSource
+    // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
     }
@@ -48,9 +50,15 @@ class TodoListViewController: UITableViewController {
         return cell
     }
     
-//    UITableViewDelegate
+    // MARK: - Table View Delegate
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+//        when user clicks the list item again, remove the checkmark
+          itemArray[indexPath.row].done =  !itemArray[indexPath.row].done
+          saveItems()
+                
+          tableView.deselectRow(at: indexPath, animated: true)
         
 //        UPDATE DATA IN DATAMODEL
 //        itemArray[indexPath.row].setValue("Completed", forKey: "title")
@@ -58,12 +66,7 @@ class TodoListViewController: UITableViewController {
 //        DELETE
 //        context.delete(itemArray[indexPath.row])
 //        itemArray.remove(at: indexPath.row)
-        
-//        when user clicks the list item again, remove the checkmark
-        itemArray[indexPath.row].done =  !itemArray[indexPath.row].done
-        saveItems()
-        
-        tableView.deselectRow(at: indexPath, animated: true)
+
     }
     
 //    MARK: Add New Items
@@ -79,10 +82,9 @@ class TodoListViewController: UITableViewController {
                 
                 let newItem = Item(context: self.context)
                 newItem.title = textField.text!
+                newItem.parentCategory = self.selectedCategory
                 self.itemArray.append(newItem)
                 self.saveItems()
-
-                
             }
         }
         
@@ -96,19 +98,10 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    func saveItems(){
-        
-//  1ST APPROACH:
-//        let encoder = PropertyListEncoder()
-//
-//        do {
-//            let data = try encoder.encode(itemArray)
-//            try data.write(to: dataFilePath!)
-//        } catch {
-//            print("Error encoding data \(error)")
-//        }
 
-//  2ND APPROACH(COREDATA): Crete and save the data to context
+//    MARK: - DATA MANIPULATION METHODS: Create and save the data to context & Load data from context to our itemArray
+    
+    func saveItems(){
         do {
             try context.save()
         } catch {
@@ -118,32 +111,54 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
 
-//   1ST APPROACH:
-//    func loadItems() {
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
 
-//            if let data = try? Data(contentsOf: dataFilePath!){
-//                let decoder = PropertyListDecoder()
-//                do {
-//                    itemArray = try decoder.decode([Item].self, from: data)
-//                } catch {
-//                    print("Error while decoding data \(error)")
-//                }
-//            }
+//       Create predicate to load the results by their categories
+        let categoryPredicate  = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
         
-//                tableView.reloadData()
+//        when user searched, load items by category&searched keyword. otherwise use only categoryPredicate
+        if let additionalpredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,additionalpredicate])
+        }else{
+            request.predicate = categoryPredicate
+        }
         
-//    }
-    
-//    2ND APPROACH (COREDATA) : Load data from context to our itemArray
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
-//        let  request : NSFetchRequest<Item> = Item.fetchRequest()
         do {
             itemArray = try context.fetch(request)
         } catch {
             print("Error fetching data\(error)")
         }
+        
         tableView.reloadData()
     }
+
+/*
+      1ST APPROACH: Save and load items by encoding and decoding the data
+        func saveItems(){
+            let encoder = PropertyListEncoder()
+    
+            do {
+                let data = try encoder.encode(itemArray)
+                try data.write(to: dataFilePath!)
+            } catch {
+                print("Error encoding data \(error)")
+            }
+              tableView.reloadData()
+        }
+
+        func loadItems() {
+
+                if let data = try? Data(contentsOf: dataFilePath!){
+                    let decoder = PropertyListDecoder()
+                    do {
+                        itemArray = try decoder.decode([Item].self, from: data)
+                    } catch {
+                        print("Error while decoding data \(error)")
+                    }
+                }
+                    tableView.reloadData()
+        }
+    */
     
 }
 
@@ -154,12 +169,12 @@ extension TodoListViewController: UISearchBarDelegate {
         
         let request : NSFetchRequest<Item> = Item.fetchRequest()
         
-        request.predicate  = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        print(searchBar.text!)
+        let searchedPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+
 //        ascending order to results
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
        
-        loadItems(with: request)
+        loadItems(with: request, predicate: searchedPredicate)
 
     }
     

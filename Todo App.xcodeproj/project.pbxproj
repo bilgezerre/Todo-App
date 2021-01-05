@@ -14,6 +14,7 @@
 		FA62A4D2259A1A8B00172E4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FA62A4D0259A1A8B00172E4F /* Main.storyboard */; };
 		FA62A4D4259A1A8B00172E4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA62A4D3259A1A8B00172E4F /* Assets.xcassets */; };
 		FA62A4D7259A1A8B00172E4F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FA62A4D5259A1A8B00172E4F /* LaunchScreen.storyboard */; };
+		FAE80C1C25A4F7F900298EC3 /* CategoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE80C1B25A4F7F900298EC3 /* CategoryTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		FA62A4D3259A1A8B00172E4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA62A4D6259A1A8B00172E4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FA62A4D8259A1A8B00172E4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FAE80C1B25A4F7F900298EC3 /* CategoryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				FA62A4CE259A1A8B00172E4F /* TodoListViewController.swift */,
+				FAE80C1B25A4F7F900298EC3 /* CategoryTableViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -174,6 +177,7 @@
 			files = (
 				FA35066E25A32DB000E91F39 /* DataModel.xcdatamodeld in Sources */,
 				FA62A4CF259A1A8B00172E4F /* TodoListViewController.swift in Sources */,
+				FAE80C1C25A4F7F900298EC3 /* CategoryTableViewController.swift in Sources */,
 				FA62A4CB259A1A8B00172E4F /* AppDelegate.swift in Sources */,
 				FA62A4CD259A1A8B00172E4F /* SceneDelegate.swift in Sources */,
 			);
